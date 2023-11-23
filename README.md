@@ -1,2 +1,25 @@
 # wiki.nvim
+
 My personal wiki plugin for Neovim.
+
+Learn how to write Neovim's plugin from [[nvim] 0基础nvim插件开发教程](https://www.bilibili.com/video/BV1Qb4y1g7fU).
+
+For me, I just need to convert some text to link, create the note file and open it for all markdown files. So I just write the function `Create_Open()`.
+
+## Installation
+
+Install the theme with [lazy.nvim](https://github.com/folke/lazy.nvim):
+
+```
+{
+  "RunfengTsui/wiki.nvim",
+  lazy = true,
+  ft = "markdown",
+  config = function ()
+    require("wiki").setup({
+      wiki_file = "<leader>ww"
+    })
+  end
+}
+```
+
