@@ -8,18 +8,27 @@ For me, I just need to convert some text to link, create the note file and open 
 
 ## Installation
 
-Install the theme with [lazy.nvim](https://github.com/folke/lazy.nvim):
+Install the plugin with [lazy.nvim](https://github.com/folke/lazy.nvim):
 
-```
+```lua
 {
   "RunfengTsui/wiki.nvim",
   lazy = true,
   ft = "markdown",
-  config = function ()
-    require("wiki").setup({
-      wiki_file = "<leader>ww"
-    })
-  end
 }
+```
+
+## Usage
+
+After installing it, write `reuqire("wiki").setup({})` in the `init.lua` file and then you can use it in your markdown file.
+
+## Configuration
+
+Now I just provide one key to create and open markdown note file, you can modify it in `setup`:
+
+```lua
+require("wiki").setup({
+  open_file = "<leader>ww",
+})
 ```
 
