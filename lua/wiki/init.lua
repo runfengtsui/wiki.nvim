@@ -17,8 +17,8 @@ local function Create_Open()
   -- `winnr` will be 0 if nil. Returns the node under the cursor.
   local node = ts_utils.get_node_at_cursor()
   -- https://www.cnblogs.com/dst5650/p/8762192.html#pattern解析
-  -- %[ and %] represents [ and ]
-  local pattern_filename = "%[(.+)%]"
+  -- %[ and %] represent [ and ], %. represents .
+  local pattern_filename = ".+/([^)]+)%.md"
   local pattern_path = "([^(]+/)"
   -- https://neovim.io/doc/user/api.html#nvim_get_current_line()
   -- nvim.api.nvim_get_current_line()
@@ -34,21 +34,26 @@ local function Create_Open()
     -- Sets the current line.
     vim.api.nvim_set_current_line("* [" .. filename .. "](./" .. filename .. ".md)")
   elseif node:type() == "link_text" then
-    filename = string.match(current_line, pattern_filename)
     local target_path = string.match(current_line, pattern_path)
     if target_path == nil then
-      -- There is no link_destination. [link_text]()
+      -- There is no link_destination, i.e. [link_text]()
       abspath = get_current_file_abspath(0)
+      filename = string.match(current_line, "%[(.+)%]")
       vim.api.nvim_set_current_line("* [" .. filename .. "](./" .. filename .. ".md)")
-    elseif string.find(target_path, "%./") ~= nil then
-      -- The link_destination is relative path.
-      abspath = get_current_file_abspath(0) .. target_path
     else
-      -- The link_destination is absolute path.
-      abspath = target_path
+      -- The link_destination exists.
+      filename = string.match(current_line, pattern_filename)
+      if string.find(target_path, "%./") ~= nil then
+        -- The link_destination is relative path.
+        abspath = get_current_file_abspath(0) .. target_path
+      else
+        -- The link_destination is absolute path.
+        abspath = target_path
+      end
     end
   elseif node:type() == "link_destination" then
     -- If the type of node is link_destination, the node of link_text must exist!
+    -- So filename must exist, i.e., filename ~= nil
     filename = string.match(current_line, pattern_filename)
     local target_path = string.match(current_line, pattern_path) -- target_path not nil
     if string.find(target_path, "%./") ~= nil then
@@ -58,10 +63,11 @@ local function Create_Open()
       -- The text_destination is absolute path.
       abspath = target_path
     end
-    -- filename is nil, i.e. [](link_destination)
-    if filename == nil then
-      filename = string.match(current_line, ".+/([^)]+)%.md")
-      vim.api.nvim_set_current_line("* [" .. filename .. "](" .. target_path .. filename .. ".md)")
+    -- link_text is nil, i.e. [](link_destination)
+    if string.match(current_line, "%[(.+)%]") == nil then
+      -- fill in [] with filename
+      local new_line = string.gsub(current_line, "%[%]", "["..filename.."]")
+      vim.api.nvim_set_current_line("* " .. new_line)
     end
   else
     return

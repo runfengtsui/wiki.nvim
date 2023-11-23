@@ -32,3 +32,7 @@ require("wiki").setup({
 })
 ```
 
+## Fix
+
+* When the `link_text` is different from the filename, use filename nor `link_text`. For example, the line is `[example1](./example2.md)`. When pressing the key `<leader>ww`, create and open the file `example1.md` previously. Now, it will open the file `example2.md` after fixing the bug.
+
